@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super-Chat Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        input, button {
+            padding: 10px;
+            margin: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Super-Chat Manager</h1>
+    <div>
+        <input id="superChatInput" type="text" placeholder="Enter super-chat message" />
+        <button id="sendSuperChat">Send Super-Chat</button>
+    </div>
+    <div>
+        <input id="bannerInput" type="text" placeholder="Enter banner text" />
+        <button id="updateBanner">Update Banner</button>
+    </div>
+
+    <script>
+        const ws = new WebSocket('ws://localhost:3000');
+        const sendSuperChatButton = document.getElementById('sendSuperChat');
+        const updateBannerButton = document.getElementById('updateBanner');
+
+        sendSuperChatButton.addEventListener('click', () => {
+            const message = document.getElementById('superChatInput').value;
+            ws.send(JSON.stringify({
+                type: 'super-chat',
+                message: message
+            }));
+            document.getElementById('superChatInput').value = '';
+        });
+
+        updateBannerButton.addEventListener('click', () => {
+            const bannerText = document.getElementById('bannerInput').value;
+            ws.send(JSON.stringify({
+                type: 'banner',
+                text: bannerText
+            }));
+            document.getElementById('bannerInput').value = '';
+        });
+
+        ws.onopen = () => {
+            console.log('Connected to WebSocket server');
+        };
+
+        ws.onerror = (error) => {
+            console.error('WebSocket Error:', error);
+        };
+    </script>
+</body>
+</html>

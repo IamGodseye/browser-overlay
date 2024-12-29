@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OBS Overlay</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: transparent;
+            font-family: Arial, sans-serif;
+        }
+        #banner {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-size: 20px;
+            background: rgba(0, 0, 0, 0.5);
+        }
+        #super-chats {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 80vh;
+            overflow-y: auto;
+            width: 300px;
+            z-index: 1000;
+        }
+        .super-chat {
+            background: #ff5f5f;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            animation: fadeIn 0.5s ease-in;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <div id="super-chats"></div>
+    <div id="banner">Powered by Fanverz</div>
+    <script>
+        const ws = new WebSocket('ws://localhost:3000');
+        const superChats = new Map();
+
+        function createSuperChat(id, message) {
+            const div = document.createElement('div');
+            div.className = 'super-chat';
+            div.id = `chat-${id}`;
+            div.innerText = message;
+            return div;
+        }
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            const superChatsContainer = document.getElementById('super-chats');
+
+            if (data.type === 'initial-super-chats') {
+                // Clear existing chats
+                superChatsContainer.innerHTML = '';
+                // Add all initial chats
+                data.chats.forEach(chat => {
+                    const chatElement = createSuperChat(chat.id, chat.message);
+                    superChatsContainer.appendChild(chatElement);
+                    superChats.set(chat.id, chatElement);
+                });
+            } else if (data.type === 'super-chat') {
+                const chatElement = createSuperChat(data.id, data.message);
+                superChatsContainer.insertBefore(chatElement, superChatsContainer.firstChild);
+                superChats.set(data.id, chatElement);
+            } else if (data.type === 'remove-super-chat') {
+                const chatElement = superChats.get(data.id);
+                if (chatElement) {
+                    chatElement.style.animation = 'fadeIn 0.5s ease-in reverse';
+                    setTimeout(() => {
+                        chatElement.remove();
+                        superChats.delete(data.id);
+                    }, 500);
+                }
+            } else if (data.type === 'banner') {
+                document.getElementById('banner').innerText = data.text;
+            }
+        };
+    </script>
+</body>
+</html>
