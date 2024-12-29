@@ -53,7 +53,7 @@ The built application will be available in the `dist` folder.
 
 ### Demo:
 
-<video src="demo/obs-overlay-demo.mp4" controls width="100%"></video>
+Checkout the demo video [here](demo/obs-overlay-demo.mp4)
 
 ## Project Structure
 
@@ -84,6 +84,8 @@ git commit -m "Description of changes"
 git push origin feature-name
 ```
 5. Submit a pull request
+
+
 
 ## Troubleshooting
 
