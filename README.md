@@ -51,6 +51,19 @@ The built application will be available in the `dist` folder.
 3. Set the URL to: http://localhost:3000/overlay
 4. Adjust dimensions to match your stream layout
 
+### Architecture:
+
+```mermaid
+graph TD
+    A[Electron App] -->|Starts| B[Node.js Server]
+    B -->|Serves| C[Frontend Overlay]
+    B -->|Real-Time Updates| D[WebSocket Connection]
+    B -->|Browser Source URL| E[OBS Browser Source]
+    A -->|Admin GUI| F[Super-Chat Management]
+    D -->|Push Messages| C
+    C -->|Displays Overlay| E
+```
+
 ### Demo:
 
 Checkout the demo video [here](demo/obs-overlay-demo.mp4)
